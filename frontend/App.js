@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { TouchableOpacity, Text, View } from "react-native";
 import {
     fetchSongsData,
@@ -14,7 +14,7 @@ import TrackPlayer from "react-native-track-player";
 
 const App = () => {
     const [songs, setSongs] = useState([]);
-    const [logged, setLogged] = useState(false);
+    const [logged, setLogged] = useState(isLoggedIn());
 
     const handleSongsEnd = async () => {
         if (!logged) return;
