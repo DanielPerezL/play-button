@@ -1,0 +1,14 @@
+backend/__pycache__/
+backend/models/__pycache__/
+backend/controllers/__pycache__/
+backend/services/__pycache__/
+poblarBD/downloads/*
+poblarBD/songs.json
+
+# Ignorar todos los archivos .env
+*.env
+
+# Pero permitir .env.example
+!.env.example
+
+frontend/android/
