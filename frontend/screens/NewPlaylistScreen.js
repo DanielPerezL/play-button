@@ -8,9 +8,10 @@ import {
     Switch,
     Alert,
 } from "react-native";
-import { createPlaylist, getLoggedUserId } from "../services/apiService"; // Asegúrate de crear esta función en tu servicio
+import { createPlaylist, getLoggedUserId } from "../services/apiService";
+import { emitPlaylistCreatedEvent } from "../events/playlistCreatedEvent"; // Importa el evento
 
-const NewPlaylistScreen = () => {
+const NewPlaylistScreen = ({ navigation }) => {
     const [playlistName, setPlaylistName] = useState("");
     const [isPublic, setIsPublic] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -36,8 +37,8 @@ const NewPlaylistScreen = () => {
             );
             if (success) {
                 Alert.alert("Éxito", "Playlist creada con éxito");
-                setPlaylistName("");
-                setIsPublic(false);
+                emitPlaylistCreatedEvent(); // Emitir el evento
+                navigation.goBack(); // Volver a la pantalla anterior (UserPlaylistsScreen)
             } else {
                 Alert.alert(
                     "Error",
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: "#222", // Fondo oscuro
+        backgroundColor: "#222",
         justifyContent: "center",
     },
     title: {
@@ -113,7 +114,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     input: {
-        backgroundColor: "#333", // Fondo oscuro para el input
+        backgroundColor: "#333",
         color: "white",
         padding: 15,
         borderRadius: 8,
@@ -130,20 +131,20 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     button: {
-        backgroundColor: "#007bff", // Color por defecto cuando está habilitado
+        backgroundColor: "#007bff",
         padding: 15,
         borderRadius: 8,
         alignItems: "center",
     },
     buttonDisabled: {
-        backgroundColor: "#cccccc", // Color cuando está deshabilitado
+        backgroundColor: "#cccccc",
     },
     buttonText: {
-        color: "white", // Texto blanco por defecto
+        color: "white",
         fontWeight: "bold",
     },
     buttonTextDisabled: {
-        color: "#888888", // Texto gris cuando el botón está deshabilitado
+        color: "#888888",
     },
 });
 

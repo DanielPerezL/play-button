@@ -1,45 +1,61 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
-import PlaylistGrid from "../components/PlaylistGrid"; // Importa el componente PlaylistGrid
-import { fetchUserPlaylists, getLoggedUserId } from "../services/apiService"; // Asegúrate de tener la función fetchUserPlaylists
-import { useFocusEffect } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import {
+    View,
+    Text,
+    StyleSheet,
+    ActivityIndicator,
+    TouchableOpacity,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import PlaylistGrid from "../components/PlaylistGrid";
+import { fetchUserPlaylists, getLoggedUserId } from "../services/apiService";
+import { Ionicons } from "@expo/vector-icons";
+import {
+    subscribeToPlaylistCreatedEvent,
+    unsubscribeFromPlaylistCreatedEvent,
+} from "../events/playlistCreatedEvent"; // Importa las funciones
 
 const UserPlaylistsScreen = () => {
     const [playlists, setPlaylists] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null); // Para manejar errores
-    const [refresh, setRefresh] = useState(0); // Agregar un contador para forzar el re-render
+    const [error, setError] = useState(null);
+    const navigation = useNavigation();
 
     const getPlaylists = async () => {
         setLoading(true);
         try {
-            const userId = await getLoggedUserId(); // Obtén el userId
-            const playlistsData = await fetchUserPlaylists(userId); // Llama al servicio para obtener las playlists
-            console.log("Playlists Data:", playlistsData); // Verifica que las playlists sean correctas
+            const userId = await getLoggedUserId();
+            const playlistsData = await fetchUserPlaylists(userId);
+            console.log("Playlists Data:", playlistsData);
 
             if (playlistsData.length === 0) {
-                setError("No playlists found"); // Si no hay playlists, mostrar mensaje de error
+                setError("No playlists found");
+            } else {
+                setError(null);
             }
 
-            setPlaylists(playlistsData); // Almacena las playlists en el estado
-            setRefresh((prev) => prev + 1);
+            setPlaylists(playlistsData);
         } catch (err) {
             console.error("Error fetching playlists:", err);
             setError("Error fetching playlists");
         } finally {
-            setLoading(false); // Cambia el estado de carga
+            setLoading(false);
         }
     };
 
+    // Escuchar el evento de la creación de playlist
     useEffect(() => {
-        getPlaylists();
-    }, []);
+        getPlaylists(); // Obtener playlists inicialmente
 
-    useFocusEffect(
-        useCallback(() => {
-            getPlaylists(); // Llamamos a la función de obtención de playlists
-        }, []) // Dependencias vacías para ejecutarse solo cuando se enfoque
-    );
+        const listener = subscribeToPlaylistCreatedEvent(() => {
+            getPlaylists(); // Actualizar las playlists cuando se crea una nueva
+        });
+
+        // Limpiar el listener cuando el componente se desmonte
+        return () => {
+            unsubscribeFromPlaylistCreatedEvent(listener);
+        };
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -47,10 +63,17 @@ const UserPlaylistsScreen = () => {
             {loading ? (
                 <ActivityIndicator size="large" color="#007bff" />
             ) : error ? (
-                <Text style={styles.errorText}>{error}</Text> // Muestra un mensaje de error si no se pudieron cargar las playlists
+                <Text style={styles.errorText}>{error}</Text>
             ) : (
                 <PlaylistGrid playlists={playlists} showUser={false} />
             )}
+
+            <TouchableOpacity
+                style={styles.fab}
+                onPress={() => navigation.navigate("NewPlaylistScreen")}
+            >
+                <Ionicons name="add" size={32} color="#fff" />
+            </TouchableOpacity>
         </View>
     );
 };
@@ -72,6 +95,15 @@ const styles = StyleSheet.create({
         color: "red",
         fontSize: 16,
         textAlign: "center",
+    },
+    fab: {
+        position: "absolute",
+        right: 20,
+        bottom: 30,
+        backgroundColor: "#007bff",
+        borderRadius: 30,
+        padding: 15,
+        elevation: 5,
     },
 });
 

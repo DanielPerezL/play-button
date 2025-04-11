@@ -2,7 +2,7 @@ import * as FileSystem from "expo-file-system"; // Importa expo-file-system
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
-import { emitLoginStatusChange } from "../events/authEventEmitter";
+import { emitLoginStatusChange } from "../events/authEvent";
 
 const PRODUCTION = false;
 const API_BASE_URL = PRODUCTION
@@ -348,7 +348,9 @@ export const customFetch = async (url, options = {}) => {
         };
         const response = await fetch(url, options);
         if (!response.ok) {
-            if (response.status === 401) {
+            console.error("peticion con error: ", response.status);
+            console.error(await response.json());
+            if (response.status === 401 || response.status === 422) {
                 logout();
                 Alert.alert(
                     "Sesión Expirada",
