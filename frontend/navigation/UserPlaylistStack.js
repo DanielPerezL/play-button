@@ -16,13 +16,15 @@ const UserPlaylistsStack = () => {
                 screenOptions={{
                     headerStyle: { backgroundColor: "#333" },
                     headerTintColor: "#fff",
-                    headerLeft: () => <HeaderMenuButton />, // Asegúrate de que esto esté aquí
                 }}
             >
                 <Stack.Screen
                     name="UserPlaylists"
                     component={UserPlaylistsScreen}
-                    options={{ title: "Mis playlists" }}
+                    options={{
+                        title: "Mis playlists",
+                        headerLeft: () => <HeaderMenuButton />,
+                    }}
                 />
                 <Stack.Screen
                     name="NewPlaylistScreen"

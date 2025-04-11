@@ -7,11 +7,19 @@ const PlaylistGrid = ({ playlists, showUser }) => {
             style={styles.playlistItem}
             onPress={() => console.log("Accediendo a la playlist:", item.id)}
         >
-            {/* Si tienes imágenes de miniatura, puedes descomentar la línea siguiente */}
-            {/* <Image source={{ uri: item.thumbnail }} style={styles.playlistImage} /> */}
             <Text style={styles.playlistName}>{item.name}</Text>
             {showUser && (
                 <Text style={styles.userName}>Creada por: {item.user}</Text>
+            )}
+            {!showUser && (
+                <Text
+                    style={[
+                        styles.isPublic,
+                        item.is_public ? styles.public : styles.private,
+                    ]}
+                >
+                    {item.is_public ? "Pública" : "Privada"}
+                </Text>
             )}
         </TouchableOpacity>
     );
@@ -35,7 +43,7 @@ const styles = StyleSheet.create({
         padding: 15,
         flex: 1,
         alignItems: "center",
-        height: 100, // Altura suficiente para mostrar la información
+        height: 120, // Aumenté la altura para que haya más espacio
         justifyContent: "center",
     },
     playlistName: {
@@ -49,6 +57,17 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 5,
         textAlign: "center",
+    },
+    isPublic: {
+        marginTop: 10, // Espacio entre el texto de la playlist y el estado de visibilidad
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+    public: {
+        color: "#007bff", // Azul para las públicas
+    },
+    private: {
+        color: "#ff6347", // Rojo para las privadas
     },
     contentContainer: {
         paddingBottom: 20, // Espacio adicional al final del contenido

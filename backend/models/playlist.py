@@ -33,6 +33,8 @@ class Playlist(db.Model):
             "id": self.id,
             "name": self.name,
             "user": self.user.nickname,
+            "user_id": self.user.id,
+            "is_public": self.is_public,
         }
 
     def get_songs(self):
