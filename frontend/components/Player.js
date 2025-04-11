@@ -182,6 +182,22 @@ const Player = ({ songs, onSongsEnd }) => {
         await TrackPlayer.seekTo(value);
     };
 
+    useEffect(() => {
+        const onTrackChanged = TrackPlayer.addEventListener(
+            Event.PlaybackActiveTrackChanged,
+            async (data) => {
+                const index = data.index | 0;
+                if (index === 2) {
+                    playNext();
+                }
+            }
+        );
+
+        return () => {
+            onTrackChanged.remove(); // Limpieza del listener
+        };
+    }, [currentSongIndex]);
+
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.button} onPress={togglePlayPause}>
