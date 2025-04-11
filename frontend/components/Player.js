@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, FlatList, Alert } from "react-native";
+import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import Slider from "@react-native-community/slider";
 import TrackPlayer, {
     State,
@@ -8,7 +8,6 @@ import TrackPlayer, {
     usePlaybackState,
     Event,
     AppKilledPlaybackBehavior,
-    useTrackPlayerEvents,
 } from "react-native-track-player";
 import { downloadAudio, fetchSongDetails } from "../services/apiService";
 import { StyleSheet } from "react-native";
@@ -241,17 +240,26 @@ const Player = ({ songs, onSongsEnd }) => {
 
             {/* Queue display */}
             {isQueueVisible && (
-                <FlatList
-                    data={songs}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item, index }) => (
-                        <View style={styles.queueItem}>
-                            <Text style={styles.queueItemText}>
-                                {item.name}
-                            </Text>
-                        </View>
-                    )}
-                />
+                <View
+                    style={{
+                        maxHeight: 200,
+                        marginBottom: 80,
+                        marginLeft: 20,
+                        marginRight: 20,
+                    }}
+                >
+                    <FlatList
+                        data={songs}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={({ item, index }) => (
+                            <View style={styles.queueItem}>
+                                <Text style={styles.queueItemText}>
+                                    {item.name}
+                                </Text>
+                            </View>
+                        )}
+                    />
+                </View>
             )}
         </View>
     );
@@ -314,7 +322,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     queueItem: {
-        flexDirection: "row",
+        flexDirection: "center",
         alignItems: "center",
         marginBottom: 10,
     },
