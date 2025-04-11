@@ -1,29 +1,48 @@
 import React, { useState, useEffect, use } from "react";
 import { TouchableOpacity, Text, View } from "react-native";
-import {
-    fetchSongsData,
-    isLoggedIn,
-    login,
-    logout,
-} from "./services/apiService";
+import { fetchSongsData, isLoggedIn, logout } from "./services/apiService";
 import Player from "./components/Player";
 import { cleanCache, shuffleArray } from "./services/utils";
 import { StatusBar } from "expo-status-bar";
 import AuthWrapper from "./components/AuthWrapper";
 import TrackPlayer from "react-native-track-player";
+import authEventEmitter from "./events/authEventEmitter";
 
 const App = () => {
     const [songs, setSongs] = useState([]);
     const [logged, setLogged] = useState(isLoggedIn());
 
+    const handleLogout = async () => {
+        await TrackPlayer.stop();
+        await cleanCache();
+        await logout();
+        setLogged(false);
+    };
+
+    useEffect(() => {
+        const handleAuthChange = (status) => {
+            setLogged(status);
+        };
+
+        // Suscribirse al evento
+        const unsubscribe = authEventEmitter.addListener(
+            "authStatusChanged",
+            handleAuthChange
+        );
+
+        return () => {
+            // Limpiar el listener cuando el componente se desmonte
+            unsubscribe();
+        };
+    }, []);
+
     const handleSongsEnd = async () => {
-        if (!logged) return;
         const songsData = await fetchSongsData();
         setSongs(shuffleArray(songsData));
     };
 
     useEffect(() => {
-        if (logged) handleSongsEnd();
+        if (!logged) handleLogout();
     }, [logged]);
 
     return (
@@ -40,12 +59,7 @@ const App = () => {
                         padding: 10,
                         borderRadius: 6,
                     }}
-                    onPress={async () => {
-                        await TrackPlayer.stop();
-                        await cleanCache();
-                        await logout();
-                        setLogged(false);
-                    }}
+                    onPress={handleLogout}
                 >
                     <Text style={{ color: "#fff", fontWeight: "bold" }}>
                         Logout
